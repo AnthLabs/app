@@ -1,0 +1,4 @@
+media/hls/*
+!media/hls/.gitkeep
+/media/uploads/*
+!media/uploads/.gitkeep

@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+
+    container_name: anth-api
+    restart: unless-stopped
+
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+      MEDIA_ROOT: /app/media
+      PUBLIC_MEDIA_URL: http://localhost:8080/media
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./media:/app/media
+
+    depends_on:
+      - mongodb
+
+    networks:
+      - anth-network

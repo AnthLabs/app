@@ -6,6 +6,22 @@ To clone the main repository and initialize all submodules at the same time, use
 git clone --recurse-submodules https://github.com/AnthLabs/app.git
 ```
 
+To run the projet as a frontend dev, use:
+
+```bash
+sudo docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
+```
+> this will allow you to use nginx, mongodb and the api
+
+To run the project as a api dev, use:
+
+```bash
+sudo docker compose -f docker-compose.base.yml -f docker-compose.api.yml up -d
+```
+> this will allow you to use nginx and mongodb.
+
+---
+
 This repository contains two Git submodules:
 
 * `front/`

@@ -1,4 +1,4 @@
-# Working with Git Submodules
+# AnthApp
 
 To clone the main repository and initialize all submodules at the same time, use:
 
@@ -16,11 +16,12 @@ sudo docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d
 To run the project as a api dev, use:
 
 ```bash
+
 sudo docker compose -f docker-compose.base.yml -f docker-compose.api.yml up -d
 ```
 > this will allow you to use nginx and mongodb.
 
----
+# Working with Git Submodules
 
 This repository contains two Git submodules:
 

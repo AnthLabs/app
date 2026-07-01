@@ -1,94 +1,124 @@
 # AnthApp
 
-To clone the main repository and initialize all submodules at the same time, use:
+AnthApp est le repository d'orchestration de la plateforme **V-Secure & Collaborate**.
 
-```bash
-git clone --recurse-submodules https://github.com/AnthLabs/app.git
-```
+Il relie le front React, l'API Rust, le stockage média local, NGINX, Docker et la couche infrastructure du hackathon.
 
-To run the projet as a frontend dev, use:
+## Organisation
 
-```bash
-sudo docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
-```
-> this will allow you to use nginx, mongodb and the api
+- `front/` : submodule React / Vite.
+- `api/` : submodule API Rust.
+- `media/` : stockage local des médias.
+- `infra/` : couche Infrastructure, Sécurité & Cloud.
+- `docker-compose.base.yml` : socle commun.
+- `docker-compose.front.yml` : dépendances nécessaires au développement front.
+- `docker-compose.api.yml` : dépendances nécessaires au développement API.
 
-To run the project as a api dev, use:
+Les fichiers `docker-compose.*.yml` décrivent les dépendances nécessaires pour travailler sur un module donné.  
+Ils ne correspondent pas forcément à un service unique portant le même nom.
 
-```bash
+## Couche infrastructure
 
-sudo docker compose -f docker-compose.base.yml -f docker-compose.api.yml up -d
-```
-> this will allow you to use nginx and mongodb.
+Le travail infrastructure vit dans [`infra/`](infra/README.md), afin de garder une plateforme cohérente sans ajouter un quatrième repository.
 
-# Working with Git Submodules
+Cette couche fournit :
 
-This repository contains two Git submodules:
+- un CDN local NGINX pour les playlists HLS et les segments `.ts` chiffrés ;
+- des scripts de packaging HLS AES-128 ;
+- un serveur de clés éphémères qui valide des tokens temporaires signés ;
+- une configuration Docker Compose dédiée à la reproduction locale ;
+- des fichiers Terraform décrivant une approche IaC locale volontairement simple ;
+- une documentation d'architecture, de menace et de reproductibilité.
 
-* `front/`
-* `api/`
+Lancer la démonstration infra :
 
-Each submodule is an independent Git repository. Changes made inside a submodule must first be committed and pushed from that submodule, then the updated commit reference must be committed in the main repository.
+    ```bash
+    cp infra/docker/.env.example infra/docker/.env
+    docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.infra.yml up -d --build
+    ```
 
-## Making Changes in a Submodule
+## Cloner le projet
 
-When working inside `front/` or `api/`, commit and push your changes from the corresponding submodule.
+    ```bash
+    git clone --recurse-submodules https://github.com/AnthLabs/app.git
+    ```
 
-Example with the `api/` submodule:
+## Lancer le socle commun
 
-```bash
-cd api
+    ```bash
+    docker compose -f docker-compose.base.yml up -d --build
+    ```
 
-git add .
-git commit -m "feat: describe your changes"
-git push
-```
+Ce socle lance :
 
-The same workflow applies to the `front/` submodule:
+- MongoDB ;
+- NGINX pour les médias HLS.
 
-```bash
-cd front
+## Développement front
 
-git add .
-git commit -m "feat: describe your changes"
-git push
-```
+Le front React/Vite est lancé depuis le submodule `front/`.
 
-## Updating the Submodule Reference
+Le fichier `docker-compose.front.yml` ajoute l'API Rust nécessaire au front :
 
-After pushing changes from a submodule, return to the main repository.
+    ```bash
+    docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
+    ```
 
-The main repository must record the new commit used by the submodule:
+## Développement API
 
-```bash
-cd ..
+L'API Rust n'a pas besoin de service additionnel pour l'instant.  
+Le fichier `docker-compose.api.yml` existe pour garder une convention homogène :
 
-git add api
-git commit -m "chore: update api submodule reference"
-git push
-```
+    ```bash
+    docker compose -f docker-compose.base.yml -f docker-compose.api.yml up -d
+    ```
 
-For the `front/` submodule:
+## Travailler avec les submodules Git
 
-```bash
-git add front
-git commit -m "chore: update front submodule reference"
-git push
-```
+Ce repository contient deux submodules Git :
 
-You can check which submodule references have changed with:
+- `front/`
+- `api/`
 
-```bash
-git status
-```
+Chaque submodule est un repository Git indépendant.
 
-## Pulling Changes from the Main Repository
+Les changements faits dans un submodule doivent d'abord être commités et poussés depuis ce submodule, puis la référence du submodule doit être mise à jour dans le repository principal.
 
-To retrieve the latest changes from the main repository and update the submodules to the commits recorded by it, run:
+### Exemple avec `api`
 
-```bash
-git pull
-git submodule update --init --recursive
-```
+    ```bash
+    cd api
+    git add .
+    git commit -m "feat: describe your changes"
+    git push
+    ```
 
-This is the recommended command sequence for keeping your local repository synchronized with the versions committed in the main repository.
+    ```bash
+    cd ..
+    git add api
+    git commit -m "chore: update api submodule reference"
+    git push
+    ```
+
+### Exemple avec `front`
+
+    ```bash
+    cd front
+    git add .
+    git commit -m "feat: describe your changes"
+    git push
+    ```
+
+    ```bash
+    cd ..
+    git add front
+    git commit -m "chore: update front submodule reference"
+    git push
+    ```
+
+## Mettre à jour les submodules
+
+    ```bash
+    git pull
+    git submodule update --init --recursive
+    ```

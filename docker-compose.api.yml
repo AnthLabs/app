@@ -1,1 +1,4 @@
+# Mode développement API :
+# aucun service additionnel n'est nécessaire pour l'instant.
+# Le socle commun est fourni par docker-compose.base.yml.
 services: {}

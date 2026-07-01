@@ -4,6 +4,14 @@ AnthApp est le repository d'orchestration de la plateforme **V-Secure & Collabor
 
 Il relie le front React, l'API Rust, le stockage média local, NGINX, Docker et la couche infrastructure du hackathon.
 
+## Lancer l'application:
+```bash
+git clone --recurse-submodules https://github.com/AnthLabs/app.git
+cp .env.example .env
+docker compose up -d --build
+```
+Après ces commandes pour aurez accès à l'application sur votre localhost ou le addresse ip de la machine qui a lancé l'application au port que vous avez renseigné dans le .env (généralement http://localhost:8080)
+
 ## Organisation
 
 - `front/` : submodule React / Vite.

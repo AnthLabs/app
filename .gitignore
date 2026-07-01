@@ -1,8 +1,9 @@
-media/hls/*
+/media/hls/*
 !media/hls/.gitkeep
 /media/uploads/*
 !media/uploads/.gitkeep
 /media/keys/*
 !media/keys/.gitkeep
-__pycache__/
+/media/log/*
+!media/log/.gitkeep
 *.pyc

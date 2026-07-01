@@ -20,6 +20,15 @@ La couche `infra/` centralise l'ensemble des éléments liés au streaming sécu
 
 ```text
 React
+   │ upload vidéo
+   ▼
+API Rust
+   │
+   ├── media/uploads/<asset>.mp4
+   ├── media/keys/<asset>.key
+   └── media/hls/<asset>/master.m3u8 + segments chiffrés
+
+React
    │
    ▼
 NGINX
@@ -42,13 +51,15 @@ Les segments HLS sont publics mais restent inutilisables sans la clé AES.
 
 Les vidéos sources (`media/uploads`) ne sont jamais exposées afin d'empêcher tout contournement du flux HLS.
 
+Le front ne change pas de responsabilité : il reçoit une URL HLS depuis le salon et la charge dans le lecteur. La sécurisation est portée par l'API, NGINX et le serveur de clés.
+
 ---
 
 ## Prototype vs Production
 
 ### Prototype Hackathon
 
-Le script de packaging génère une playlist contenant un token temporaire.
+L'API Rust génère une playlist contenant un token temporaire compatible avec le serveur de clés Python. Le script `infra/scripts/generate-hls.sh` conserve le même principe pour la démonstration autonome.
 
 Ce choix simplifie la démonstration tout en permettant d'illustrer le fonctionnement complet de la chaîne de diffusion sécurisée.
 

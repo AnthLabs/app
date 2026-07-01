@@ -42,16 +42,16 @@ Ce document résume les principaux éléments à protéger, les mécanismes de s
 
 ### Version Hackathon
 
-- le token est embarqué dans la playlist générée ;
+- le token est embarqué dans la playlist générée par l'API Rust ou par le script autonome ;
 - le serveur de clés vérifie la signature, l'asset et l'expiration ;
-- la chaîne sécurisée est démontrable en quelques commandes ;
+- la chaîne sécurisée est démontrable via l'upload applicatif réel ;
 - l'objectif est de prouver le fonctionnement du flux sécurisé, pas de fournir une solution DRM complète.
 
 ### Version cible
 
 Dans une architecture plus proche d'un environnement de production :
 
-- l'émission des tokens serait déplacée dans l'API Rust après validation de l'utilisateur et de son accès au salon ;
+- l'émission des tokens resterait dans l'API Rust, mais après validation forte de l'utilisateur et de son accès au salon ;
 - les manifests seraient générés ou signés par utilisateur/session ;
 - les URLs de clés auraient une durée de vie très courte ;
 - les clés pourraient être tournées par asset, par session ou par période ;

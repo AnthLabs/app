@@ -4,11 +4,35 @@ L'objectif est de pouvoir reconstruire l'environnement de démonstration en quel
 
 ---
 
-## Docker Compose
+## Docker Compose principal
 
-Docker Compose constitue le point d'entrée principal pour lancer la démonstration.
+Docker Compose principal constitue le point d'entrée recommandé pour lancer la démonstration applicative complète.
 
 Depuis le repository `app` :
+
+```bash
+docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
+```
+
+Services disponibles :
+
+| Service | URL |
+|---------|-----|
+| Front Vite | http://localhost:5173 |
+| API Rust | http://localhost:3000 |
+| CDN NGINX | http://localhost:8080 |
+| Key Server | http://localhost:8090 |
+| Healthcheck Key Server | http://localhost:8090/health |
+
+Le front est toujours lancé depuis le submodule `front/` en développement Vite. La stack Docker fournit l'API, MongoDB, NGINX et le serveur de clés.
+
+---
+
+## Démonstrateur infra autonome
+
+La stack `infra/docker/docker-compose.infra.yml` sert à démontrer NGINX et le key-server sans l'API Rust.
+
+Elle doit être lancée séparément de la stack principale, ou avec des ports modifiés, car elle expose aussi NGINX et le key-server.
 
 ```bash
 cp infra/docker/.env.example infra/docker/.env
@@ -19,7 +43,7 @@ docker compose \
   up -d --build
 ```
 
-Services disponibles :
+Services autonomes :
 
 | Service | URL |
 |---------|-----|

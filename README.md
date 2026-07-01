@@ -30,12 +30,20 @@ Cette couche fournit :
 - des fichiers Terraform décrivant une approche IaC locale volontairement simple ;
 - une documentation d'architecture, de menace et de reproductibilité.
 
-Lancer la démonstration infra :
+Le flux applicatif principal chiffre maintenant les vidéos uploadées par l'API Rust en HLS AES-128. NGINX sert les playlists et segments, tandis que le serveur de clés Python valide le token temporaire avant de retourner la clé AES.
 
-    ```bash
-    cp infra/docker/.env.example infra/docker/.env
-    docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.infra.yml up -d --build
-    ```
+Lancer la démonstration applicative :
+
+```bash
+docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
+```
+
+La stack infra isolée reste disponible comme démonstrateur autonome :
+
+```bash
+cp infra/docker/.env.example infra/docker/.env
+docker compose --env-file infra/docker/.env -f infra/docker/docker-compose.infra.yml up -d --build
+```
 
 ## Cloner le projet
 

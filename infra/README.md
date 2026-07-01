@@ -17,20 +17,44 @@ Le choix est volontaire : l'infrastructure reste proche du front, de l'API, des 
 ## Parcours de démonstration
 
 1. L'application React rejoint un salon **Watch Together**.
-2. Le présentateur lance une vidéo.
-3. Le lecteur charge une playlist HLS servie par NGINX.
-4. NGINX sert uniquement les playlists et segments présents dans `media/hls`.
-5. Les vidéos sources (`media/uploads`) et les clés AES (`media/keys`) ne sont jamais exposées publiquement.
-6. Le lecteur demande la clé AES au serveur de clés à l'aide d'un token temporaire.
-7. Le serveur valide le token avant de retourner la clé.
-8. Sans token valide, les segments restent chiffrés et ne peuvent pas être lus.
-9. Les événements de lecture pourront ensuite alimenter le pôle IA & Data.
+2. Le présentateur téléverse une vidéo depuis le front.
+3. L'API Rust sauvegarde la source dans `media/uploads`.
+4. L'API génère une clé AES-128 dans `media/keys`.
+5. L'API convertit la vidéo en HLS chiffré dans `media/hls/<asset>/master.m3u8`.
+6. NGINX principal sert uniquement les playlists et segments présents dans `media/hls`.
+7. Le lecteur demande la clé AES au serveur de clés à l'aide du token embarqué dans la playlist.
+8. Le serveur valide le token avant de retourner la clé.
+9. Sans token valide, les segments restent chiffrés et ne peuvent pas être lus.
+10. Les événements de lecture pourront ensuite alimenter le pôle IA & Data.
 
 ---
 
-## Démarrage local
+## Flux applicatif principal
 
-Depuis le repository `app` :
+Le flux utilisé par l'application passe par le Docker Compose principal :
+
+```bash
+docker compose -f docker-compose.base.yml -f docker-compose.front.yml up -d --build
+```
+
+Cette stack lance MongoDB, NGINX, l'API Rust et le serveur de clés Python.
+
+Le front ne connaît qu'une URL HLS classique. La différence est côté API : les playlists générées pointent vers le key-server pour récupérer la clé AES.
+
+Variables importantes :
+
+- `PUBLIC_MEDIA_URL` : URL publique de NGINX pour les playlists et segments.
+- `KEY_SERVER_PUBLIC_URL` : URL publique du serveur de clés vue par le navigateur.
+- `KEY_TOKEN_SECRET` : secret partagé entre l'API Rust et le key-server Python.
+- `KEY_TOKEN_TTL_SECONDS` : durée de vie du token embarqué dans la playlist.
+
+---
+
+## Démonstrateur infra autonome
+
+Le compose `infra/docker/docker-compose.infra.yml` reste disponible pour démontrer la couche infra seule, sans lancer l'API Rust.
+
+Depuis le repository `app`, à lancer séparément de la stack principale ou avec des ports modifiés :
 
 ```bash
 cp infra/docker/.env.example infra/docker/.env
@@ -40,13 +64,13 @@ docker compose \
   up -d --build
 ```
 
-### Générer un token
+### Générer un token autonome
 
 ```bash
 ./infra/scripts/create-key-token.sh demo 3600
 ```
 
-### Convertir une vidéo en HLS chiffré
+### Convertir une vidéo en HLS chiffré hors API
 
 ```bash
 ./infra/scripts/generate-hls.sh media/uploads/demo.mp4 demo
@@ -76,7 +100,7 @@ http://localhost:8090/keys/demo.key?token=<temporary-token>
 
 ### Version Hackathon
 
-- le token est embarqué dans la playlist générée ;
+- le token est embarqué dans la playlist générée par l'API ou par le script autonome ;
 - la démonstration reste simple, rapide et reproductible ;
 - l'objectif est de démontrer le fonctionnement de la chaîne :
 
@@ -89,7 +113,7 @@ NGINX → HLS chiffré → Serveur de clés
 Dans une architecture plus proche d'un environnement de production :
 
 - l'API Rust valide l'utilisateur et son accès au salon ;
-- l'API génère un manifest signé ou une URL de clé à durée de vie très courte ;
+- l'API génère un manifest signé par session ou une URL de clé à durée de vie très courte ;
 - le lecteur ne reçoit jamais une playlist statique contenant un token durable.
 
 ---

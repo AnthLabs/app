@@ -13,7 +13,11 @@ services:
     environment:
       MONGO_URI: mongodb://mongodb:27017
       MEDIA_ROOT: /app/media
+      HLS_KEY_ROOT: /app/media/keys
       PUBLIC_MEDIA_URL: http://localhost:${APP_NGINX_PORT:-8080}/media
+      KEY_SERVER_PUBLIC_URL: http://localhost:${KEY_SERVER_PORT:-8090}
+      KEY_TOKEN_SECRET: ${KEY_TOKEN_SECRET:-replace-with-a-long-random-local-secret}
+      KEY_TOKEN_TTL_SECONDS: ${KEY_TOKEN_TTL_SECONDS:-3600}
 
     ports:
       - "3000:3000"
@@ -22,7 +26,10 @@ services:
       - ./media:/app/media
 
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_started
+      key-server:
+        condition: service_healthy
 
     networks:
       - anth-network

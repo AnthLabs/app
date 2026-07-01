@@ -7,3 +7,4 @@
 /media/log/*
 !media/log/.gitkeep
 *.pyc
+.env
